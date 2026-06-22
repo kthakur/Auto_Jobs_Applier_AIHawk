@@ -1,7 +1,11 @@
-# JobHawk — Design Spec (v0.1, DRAFT)
+# Darzi — Design Spec (v0.1, DRAFT)
 
-> An agentic job-discovery + tailored-application system, built as a portable
-> MCP core on top of an existing "claw"-family agent harness.
+> _Darzi_ (दर्ज़ी / درزی) — "tailor" in Hindi/Urdu/Persian.
+>
+> An agentic job-discovery + tailored-application system: it finds relevant jobs,
+> tailors a résumé and cover letter to each in the user's voice, and submits
+> applications after human review. Built as a portable MCP core on top of an
+> existing "claw"-family agent harness.
 >
 > Status: brainstorming draft. Nothing here is locked except where noted.
 
@@ -41,11 +45,11 @@ Design principles:
 │  sandboxing · LLM routing · conversational memory             │
 ├─ OFF-THE-SHELF SKILLS — reused from harness/ecosystem ────────┤
 │  Gmail/email · Google Docs/Sheets · headful browser control   │
-├─ JOBHAWK SKILL (SKILL.md / HAND.toml) — built (the brain) ────┤
+├─ DARZI SKILL (SKILL.md / HAND.toml) — built (the brain) ──────┤
 │  workflow: discover → extract → score → tailor → draft →      │
 │            queue-for-review → (approved) send → track         │
 │  voice rules · per-source policy · human-in-loop gates        │
-├─ JOBHAWK MCP SERVER — built (the muscle, PORTABLE CORE) ──────┤
+├─ DARZI MCP SERVER — built (the muscle, PORTABLE CORE) ────────┤
 │  deterministic tools + hard-coded guardrails                  │
 │        └── Postgres + pgvector (profile, jobs, applications)  │
 └────────────────────────────────────────────────────────────────┘
@@ -60,7 +64,7 @@ attacks in the wild). The MCP core keeps this reversible.
 
 ---
 
-## 3. The portable core: JobHawk MCP server
+## 3. The portable core: Darzi MCP server
 
 Language: Python, stdio MCP server. Single source of domain truth + the hard gates.
 
@@ -166,7 +170,7 @@ authoritative posting there (tier 2) instead of scraping the aggregator.
 | Job-board native apply | Mostly avoided | — | Skip |
 
 **Approval gate (all channels):** agent drafts → Telegram card (job summary, fit
-score, tailored resume + cover letter) → user taps Approve / Edit / Skip →
+score, tailored résumé + cover letter) → user taps Approve / Edit / Skip →
 `send_application` executes only with the resulting token. Auto-send threshold can
 be raised per-channel once trust is established (e.g. email-apply, fit > 0.85).
 
@@ -174,9 +178,9 @@ be raised per-channel once trust is established (e.g. email-apply, fit > 0.85).
 
 ## 7. Voice & tailoring
 
-- Capture: ingest resume variants + writing samples → derive a reusable
+- Capture: ingest résumé variants + writing samples → derive a reusable
   `voice_guide` (tone, vocabulary, sentence rhythm, what to avoid).
-- Tailor: select relevant case studies → reorder/re-emphasize a base resume
+- Tailor: select relevant case studies → reorder/re-emphasize a base résumé
   variant for the JD; write a cover letter in the voice guide.
 - Honesty guard (code): reject any generated artifact referencing facts not in
   the profile source set. Tailoring may rephrase; it may not invent.
@@ -241,7 +245,7 @@ isolation, but datacenter IP fails tier-3 anti-bot. Hybrid possible later.
 
 1. **MVP (no sending):** Postgres schema + load profile/case studies →
    `fetch → extract → score → tailor → cover letter` for one pasted URL → Google
-   Doc. Validate quality.
+   Doc / local file. Validate quality.
 2. **Voice + retrieval:** voice guide + case-study matching until output is "you."
 3. **Email channel + Telegram approval gate:** can send, only with a tap.
 4. **Source intake + triage:** ZipRecruiter API + Greenhouse/Lever fetch +
@@ -256,5 +260,4 @@ isolation, but datacenter IP fails tier-3 anti-bot. Hybrid possible later.
   tiers 1–2?
 - Auto-send trust threshold per channel — start fully manual; tune later.
 - Where does the voice_guide live — MCP/Postgres vs harness memory?
-- Resume rendering pipeline (reuse AIHawk's reportlab approach vs Google Docs export).
-```
+- Résumé rendering pipeline (reportlab vs Google Docs export vs HTML→PDF).
